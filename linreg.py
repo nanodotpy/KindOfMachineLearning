@@ -5,7 +5,7 @@ y values in y array
 
 def linreg(x, y, iterations=10000, learning_rate=0.001):
     """
-    Linear regression using gradient descent and cost function.
+    Linear regression using gradient descent applied to cost function.
 
     Takes for arguments the y values array corresponding to the
     x values in x array, the number of iterations (the bigger it is the
