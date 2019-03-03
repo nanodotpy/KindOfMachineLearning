@@ -1,70 +1,26 @@
-"""
-this is a first try at doing linear regression
-it will be improved, especially the cost function minimum finding (I should implement gradient descent)
-"""
-
 import numpy as np
-from math import ceil, floor
 import matplotlib.pyplot as plt
 
-def linreg(xarray, yarray, accuracy):
-    """
-    Returns in a tuple:
-    - a and b in equation y = ax+b such that the sum of the squared error epsilon = (y - input_y)**2 is minimal for
-    input_y in yarray associated to a input_x in xarray
-    - third element of the tuple is the coefficient of determination ranging from 0 to 1:
+def linreg(x, y, learning_rate = 0.001, iterations = 100000):
+    
+    assert len(x) == len(y)
+    
+    Ymean = np.mean(y)
+    m = len(x)
+    
+    def h(x, t0, t1):
+        return t0 + t1*x
+         
+    a = 0
+    b = 0
         
-    """
-    
-    Ymean = np.mean(yarray)
+    for e in range(iterations):
+        tempb = b - (learning_rate/m)*(sum([h(x[i], b, a) - y[i] for i in range(m)]))
+        tempa = a - (learning_rate/m)*(sum([(h(x[i], b, a) - y[i])*x[i] for i in range(m)]))
+        b = tempb
+        a = tempa
         
-    def h(x, a, b):
-        """
-        Affine function
-        """
-        return x*a + b
-     
-    def j(x, y, a, b):
-        """
-        Cost function, takes for arguments a and b and computes the average difference
-        between our hypothesis and actual input y
-        """
-        assert len(x) == len(y)
-        m = len(x)
-        image_of_j = sum([(h(x[i], a, b) - y[i])**2 for i in range(m)])/(2*m)
-        return image_of_j
-    
-    step = 10**(-accuracy)
-    
-    """
-    I first grossly estimate a and b to limit the minimum searching interval :
-        it is not the right way to do it
-    """
-    
-    estim_a = (yarray[-1]-yarray[0])/(xarray[-1]-xarray[0])
-    
-    estim_b = yarray[0] - estim_a*xarray[0]
-    
-    if estim_a < 0:
-        a = np.arange(int(ceil(estim_a*1.5))-1, int(floor(estim_a*0.5))+1, step)
-    else:
-        a = np.arange(int(floor(estim_a*0.5))-1, int(ceil(estim_a*1.5))+1, step)
-                                                                                    # those tests gotta be removed
-    if estim_b < 0:
-        b = np.arange(int(ceil(estim_b*1.5))-1, int(floor(estim_b*0.5))+1, step)
-    else:
-        b = np.arange(int(floor(estim_b*0.5))-1, int(ceil(estim_b*1.5))+1, step)
-        
-    a, b = np.meshgrid(a, b)
-    
-    Z = j(xarray, yarray, a, b)
-        
-    i, j = np.where(Z == np.amin(Z))
-        
-    a = round(j[0]*step + a[0][0], accuracy)
-    b = round(i[0] * step + b[0][0], accuracy)
-    
-    r_squared = 1 - (sum([(yarray[i]-(xarray[i]*a + b))**2 for i in range(len(yarray))])/sum([(yarray[i]-Ymean)**2 for i in range(len(yarray))]))
+    r_squared = 1 - (sum([(y[i]-(x[i]*a + b))**2 for i in range(len(y))])/sum([(x[i]-Ymean)**2 for i in range(len(y))]))
 
     result = (a, b, r_squared)
     
@@ -76,17 +32,19 @@ if __name__ == '__main__':
     
     x = [1, 2, 5, 9, 15, 25, 42]
     
-    y = [10, 15, 32, 45, 67, 89, 99]
+    y = [2*xi for xi in x]
     
-    coeffs = linreg(x, y, 1)
+    coeffs = linreg(x, y, 0.001, 100000)
         
     Y = [coeffs[0]*xi + coeffs[1] for xi in x]
     
-    print(coeffs[2])
+    print(coeffs)
         
     fig = plt.figure()   
     
     fig.set_size_inches(14, 9)
 
     plt.plot(x, y,'o', x, Y)
+   
+
    
